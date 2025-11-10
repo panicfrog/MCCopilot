@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Web页面</title>
+    <link rel="stylesheet" href="local://style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Web 页面</h1>
+        <p class="subtitle">本地资源缓存加载</p>
+      </header>
+
+      <div class="card">
+        <div class="emoji">🌐</div>
+        <h2>欢迎来到 Web 模块</h2>
+        <p class="description">
+          这是一个通过 local:// 协议加载的本地 HTML 页面。 所有资源都预先打包在 App
+          内部，无需网络连接即可访问。
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>技术特性</h3>
+        <ul class="feature-list">
+          <li>
+            <span class="check">✓</span>
+            <span>本地资源缓存</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span>自定义 URL 拦截</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span>WKWebView 性能优化</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span>离线可用</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span>快速加载</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card interactive">
+        <h3>交互示例</h3>
+        <div class="counter-section">
+          <div class="counter-display" id="counter">0</div>
+          <div class="button-group">
+            <button class="btn btn-danger" onclick="decrementCounter()">-</button>
+            <button class="btn btn-primary" onclick="resetCounter()">重置</button>
+            <button class="btn btn-success" onclick="incrementCounter()">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <p><strong>当前协议：</strong>local://</p>
+        <p><strong>加载方式：</strong>WKURLSchemeHandler</p>
+        <p><strong>资源位置：</strong>App Bundle</p>
+      </div>
+    </div>
+
+    <script src="local://script.js"></script>
+  </body>
+</html>

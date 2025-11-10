@@ -1,0 +1,45 @@
+{
+  "tabs": [
+    {
+      "id": "tab1",
+      "title": "首页",
+      "type": "native",
+      "icon": "house.fill"
+    },
+    {
+      "id": "tab2",
+      "title": "RN页面",
+      "type": "react-native",
+      "moduleName": "ExampleRNApp",
+      "icon": "cpu.fill"
+    },
+    {
+      "id": "tab3",
+      "title": "Flutter 1",
+      "type": "flutter",
+      "entrypoint": "main",
+      "icon": "bolt.fill"
+    },
+    {
+      "id": "tab4",
+      "title": "购物",
+      "type": "flutter",
+      "entrypoint": "shoppingMain",
+      "icon": "cart.fill"
+    },
+    {
+      "id": "tab5",
+      "title": "我的",
+      "type": "flutter",
+      "entrypoint": "profileMain",
+      "icon": "person.fill"
+    },
+    {
+      "id": "tab6",
+      "title": "Web",
+      "type": "web",
+      "url": "local://index.html",
+      "icon": "globe"
+    }
+  ]
+}
