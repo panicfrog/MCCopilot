@@ -1,0 +1,168 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #f5f5f5;
+  padding: 20px;
+  line-height: 1.6;
+  color: #333;
+  /* 优化触摸体验 */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-top: 20px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.emoji {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.description {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.feature-list {
+  list-style: none;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #666;
+}
+
+.check {
+  color: #34C759;
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.counter-section {
+  text-align: center;
+}
+
+.counter-display {
+  font-size: 48px;
+  font-weight: bold;
+  color: #007AFF;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  min-width: 80px;
+  /* 优化触摸响应 */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* 防止文本选择 */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.btn:active {
+  opacity: 0.7;
+}
+
+.btn-success {
+  background-color: #34C759;
+}
+
+.btn-danger {
+  background-color: #FF3B30;
+}
+
+.btn-primary {
+  background-color: #007AFF;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-card p {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.info-card strong {
+  color: #333;
+}
+
+.interactive {
+  border: 2px solid #007AFF;
+}

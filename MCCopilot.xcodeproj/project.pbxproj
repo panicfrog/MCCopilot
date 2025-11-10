@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		1F87E88376B34FD2296831EC /* libPods-MCCopilot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD1DFAD2FD9CB7496049737 /* libPods-MCCopilot.a */; };
 		A497BA6FE86601054E42C9CE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */; };
-		B855E83C2EC1D2AF008E52F7 /* Web in Resources */ = {isa = PBXBuildFile; fileRef = B855E83B2EC1D2AF008E52F7 /* Web */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -17,7 +16,6 @@
 		7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9CF998B8575E33E110CB3264 /* Pods-MCCopilot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MCCopilot.release.xcconfig"; path = "Target Support Files/Pods-MCCopilot/Pods-MCCopilot.release.xcconfig"; sourceTree = "<group>"; };
 		9DD1DFAD2FD9CB7496049737 /* libPods-MCCopilot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MCCopilot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B855E83B2EC1D2AF008E52F7 /* Web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Web; sourceTree = "<group>"; };
 		B88FCD4A2EC1AA6000EA9E18 /* MCCopilot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MCCopilot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8C29BBF2EC1BDFB0034E4B1 /* App.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = App.xcframework; path = Flutter/Debug/App.xcframework; sourceTree = "<group>"; };
 		B8C29BC02EC1BDFB0034E4B1 /* Flutter.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:S8QB4VV633:FLUTTER.IO LLC"; lastKnownFileType = wrapper.xcframework; name = Flutter.xcframework; path = Flutter/Debug/Flutter.xcframework; sourceTree = "<group>"; };
@@ -68,7 +66,6 @@
 		B88FCD412EC1AA6000EA9E18 = {
 			isa = PBXGroup;
 			children = (
-				B855E83B2EC1D2AF008E52F7 /* Web */,
 				B88FCD4C2EC1AA6000EA9E18 /* MCCopilot */,
 				B88FCD4B2EC1AA6000EA9E18 /* Products */,
 				7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */,
@@ -105,6 +102,7 @@
 				2E4100A8DC41166FD26183B4 /* [CP] Check Pods Manifest.lock */,
 				50C3141D1EE8351E753345A0 /* [CP-User] Run Flutter Build flutter_app Script */,
 				B88FCD462EC1AA6000EA9E18 /* Sources */,
+				275A9C9B2EC24C14007E6BF6 /* Bundle Web */,
 				B88FCD472EC1AA6000EA9E18 /* Frameworks */,
 				B88FCD482EC1AA6000EA9E18 /* Resources */,
 				33B8A3F9CCC2F30CBB974EB5 /* [CP] Embed Pods Frameworks */,
@@ -162,7 +160,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B855E83C2EC1D2AF008E52F7 /* Web in Resources */,
 				A497BA6FE86601054E42C9CE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -170,6 +167,32 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		275A9C9B2EC24C14007E6BF6 /* Bundle Web */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				" $(SRCROOT)/Web/src/**/*.tsx",
+				"$(SRCROOT)/Web/src/**/*.ts",
+				"$(SRCROOT)/Web/src/**/*.css",
+				"$(SRCROOT)/Web/package.json",
+				"$(SRCROOT)/Web/vite.config.ts",
+			);
+			name = "Bundle Web";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				" $(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Web/index.html",
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Web/assets/index.css",
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Web/assets/index.js",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "   # 构建React Web模块\n  cd \"$SRCROOT/Web\"\n\n  # 检查源文件是否发生变化\n  if [ ! -f \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Web/index.html\" ]; then\n      FORCE_BUILD=true\n  fi\n\n  # 构建应用\n  if [ \"$FORCE_BUILD\" = true ] || [ ! -d \"node_modules\" ]; then\n      if [ ! -d \"node_modules\" ]; then\n          npm install\n      fi\n\n      if [ \"$CONFIGURATION\" = \"Debug\" ]; then\n          npm run build:ios:dev\n      else\n          npm run build:ios\n      fi\n  fi\n";
+		};
 		28EE3CDAF593AEA52E92DEB9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -178,9 +201,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -217,9 +244,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -231,7 +262,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Embed Flutter Build flutter_app Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/Flutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh embed_and_thin";
@@ -241,7 +276,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Run Flutter Build flutter_app Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/Flutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh build";
@@ -406,10 +445,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/.././ReactNative/node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -480,10 +516,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/.././ReactNative/node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

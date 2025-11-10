@@ -122,19 +122,44 @@ class WebViewManager {
 
     private init() {}
 
+    /// 检测当前是否为开发模式
+    private var isDevelopmentMode: Bool {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }
+
     /// 创建配置了自定义URL拦截的WKWebView
     /// - Parameter frame: 视图框架
     /// - Returns: 配置好的WKWebView
     func createWebView(frame: CGRect) -> WKWebView {
         let configuration = WKWebViewConfiguration()
 
-        // 注册自定义URL scheme handler
-        configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "local")
+        // 根据构建模式配置WebView
+        if isDevelopmentMode {
+            print("🔧 开发模式：启用调试功能")
+            // 开发模式下允许混合内容和调试
+            let preferences = WKWebpagePreferences()
+            preferences.allowsContentJavaScript = true
 
-        // 配置WebView偏好设置（iOS 14+ 使用 defaultWebpagePreferences）
-        let preferences = WKWebpagePreferences()
-        preferences.allowsContentJavaScript = true
-        configuration.defaultWebpagePreferences = preferences
+            // 允许在开发模式下加载不安全的内容
+            if #available(iOS 14.0, *) {
+                configuration.limitsNavigationsToAppBoundDomains = false
+            }
+
+            configuration.defaultWebpagePreferences = preferences
+        } else {
+            print("🚀 生产模式：使用标准配置")
+            // 生产模式的标准配置
+            let preferences = WKWebpagePreferences()
+            preferences.allowsContentJavaScript = true
+            configuration.defaultWebpagePreferences = preferences
+        }
+
+        // 注册自定义URL scheme handler（生产模式需要）
+        configuration.setURLSchemeHandler(schemeHandler, forURLScheme: "local")
 
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
 
@@ -157,24 +182,58 @@ class WebViewManager {
         webView.scrollView.showsVerticalScrollIndicator = false
         webView.scrollView.showsHorizontalScrollIndicator = false
 
-        print("✅ WebView创建成功，已注册local://协议拦截器")
+        // 禁用缩放功能 - 移动端关键设置
+        webView.scrollView.pinchGestureRecognizer?.isEnabled = false
+        webView.scrollView.minimumZoomScale = 1.0
+        webView.scrollView.maximumZoomScale = 1.0
+
+        // 禁用双击缩放
+        if #available(iOS 10.0, *) {
+            configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        }
+
+        // 防止用户选择和缩放
+        webView.scrollView.delaysContentTouches = false
+        webView.scrollView.canCancelContentTouches = false
+
+        // 开发模式下的额外配置
+        if isDevelopmentMode {
+            // 启用调试
+            if #available(iOS 16.4, *) {
+                webView.isInspectable = true
+            }
+        }
+
+        print("✅ WebView创建成功，模式：\(isDevelopmentMode ? "开发" : "生产")")
 
         return webView
     }
 
-    /// 加载本地URL
+    /// 加载Web URL（自动选择开发或生产模式）
     /// - Parameters:
     ///   - webView: WKWebView实例
     ///   - urlString: URL字符串（如：local://index.html）
     func loadLocalURL(_ webView: WKWebView, urlString: String) {
-        guard let url = URL(string: urlString) else {
-            print("❌ 无效的URL: \(urlString)")
+        let finalURL: String
+
+        if isDevelopmentMode && urlString == "local://index.html" {
+            // 开发模式：访问本地开发服务器
+            finalURL = "http://localhost:3000"
+            print("🔧 开发模式：加载开发服务器")
+        } else {
+            // 生产模式：使用Bundle中的资源
+            finalURL = urlString
+            print("🚀 生产模式：加载Bundle资源")
+        }
+
+        guard let url = URL(string: finalURL) else {
+            print("❌ 无效的URL: \(finalURL)")
             return
         }
 
         let request = URLRequest(url: url)
         webView.load(request)
-        print("📱 开始加载: \(urlString)")
+        print("📱 开始加载: \(finalURL)")
     }
 
     /// 加载远程URL
