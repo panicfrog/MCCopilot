@@ -191,7 +191,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "   # 构建React Web模块\n  cd \"$SRCROOT/Web\"\n\n  # 检查源文件是否发生变化\n  if [ ! -f \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Web/index.html\" ]; then\n      FORCE_BUILD=true\n  fi\n\n  # 构建应用\n  if [ \"$FORCE_BUILD\" = true ] || [ ! -d \"node_modules\" ]; then\n      if [ ! -d \"node_modules\" ]; then\n          npm install\n      fi\n\n      if [ \"$CONFIGURATION\" = \"Debug\" ]; then\n          npm run build:ios:dev\n      else\n          npm run build:ios\n      fi\n  fi\n";
+			shellScript = "  # 查找并设置Node.js路径\n  if [ -d \"$HOME/.nvm\" ]; then\n      # 使用NVM的最新版本\n      NVM_NODE_PATH=$(find $HOME/.nvm/versions/node -maxdepth 1 -type d | sort -V | tail -1 2>/dev/null)\n      if [ -n \"$NVM_NODE_PATH\" ] && [ -d \"$NVM_NODE_PATH/bin\" ]; then\n          export PATH=\"$NVM_NODE_PATH/bin:$PATH\"\n      fi\n  fi\n\n  # 添加常见安装路径\n  export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n\n  # 构建React Web模块\n  cd \"$SRCROOT/Web\"\n\n  # 检查源文件是否发生变化\n  if [ ! -f \"$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/Web/index.html\" ]; then\n      FORCE_BUILD=true\n  fi\n\n  # 构建应用\n  if [ \"$FORCE_BUILD\" = true ] || [ ! -d \"node_modules\" ]; then\n      if [ ! -d \"node_modules\" ]; then\n          npm install\n      fi\n\n      if [ \"$CONFIGURATION\" = \"Debug\" ]; then\n          node scripts/build.cjs --dev\n      else\n          node scripts/build.cjs\n      fi\n  fi\n";
 		};
 		28EE3CDAF593AEA52E92DEB9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

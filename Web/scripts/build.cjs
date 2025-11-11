@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process';
-import { existsSync, rmSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const { execSync } = require('child_process');
+const { existsSync, rmSync } = require('fs');
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
 // ANSI color codes for better output
