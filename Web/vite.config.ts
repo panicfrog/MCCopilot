@@ -18,9 +18,10 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: resolve(__dirname, 'index.html'),
         output: {
-          entryFileNames: isDevelopment ? 'assets/[name].js' : 'assets/[name].[hash].js',
+          // 开发模式下使用固定文件名，避免缓存问题
+          entryFileNames: isDevelopment ? 'assets/index.js' : 'assets/[name].[hash].js',
           chunkFileNames: isDevelopment ? 'assets/[name].js' : 'assets/[name].[hash].js',
-          assetFileNames: isDevelopment ? 'assets/[name].[ext]' : 'assets/[name].[hash].[ext]'
+          assetFileNames: isDevelopment ? 'assets/index.css' : 'assets/[name].[hash].[ext]'
         }
       }
     },
@@ -28,7 +29,11 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0', // 允许局域网访问
       cors: true,
-      strictPort: true
+      strictPort: true,
+      hmr: {
+        port: 3000,
+        host: 'localhost'
+      }
     },
     define: {
       __DEV__: isDevelopment,

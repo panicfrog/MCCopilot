@@ -21,20 +21,6 @@
       "icon": "bolt.fill"
     },
     {
-      "id": "tab4",
-      "title": "购物",
-      "type": "flutter",
-      "entrypoint": "shoppingMain",
-      "icon": "cart.fill"
-    },
-    {
-      "id": "tab5",
-      "title": "我的",
-      "type": "flutter",
-      "entrypoint": "profileMain",
-      "icon": "person.fill"
-    },
-    {
       "id": "tab6",
       "title": "Web",
       "type": "web",

@@ -93,20 +93,36 @@ class WebTabViewController: UIViewController, WKScriptMessageHandler {
         self.progressView = progressView
     }
 
+    
     private func loadURL() {
         guard let webView = webView else { return }
 
         // 判断是local://还是远程URL
         if urlString.hasPrefix("local://") {
-            WebViewManager.shared.loadLocalURL(webView, urlString: urlString)
+            // 获取实际加载的URL用于日志显示
+            let actualURL = WebViewManager.shared.getActualURL(for: urlString)
+            print("📱 开始加载: \(actualURL) (原始请求: \(urlString))")
+
+            // 开发模式下清除缓存以确保最新样式
+            if actualURL.contains("localhost:3000") {
+                print("🧹 开发模式：清除WebView缓存")
+                WebViewManager.shared.clearCache {
+                    print("✅ 缓存清除完成，开始加载页面")
+                    WebViewManager.shared.loadLocalURL(webView, urlString: self.urlString)
+                }
+            } else {
+                WebViewManager.shared.loadLocalURL(webView, urlString: urlString)
+            }
         } else {
+            print("📱 开始加载: \(urlString)")
             WebViewManager.shared.loadRemoteURL(webView, urlString: urlString)
         }
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("📱 Web视图即将显示: \(urlString)")
+        let displayURL = urlString.hasPrefix("local://") ? WebViewManager.shared.getActualURL(for: urlString) : urlString
+        print("📱 Web视图即将显示: \(displayURL) (原始: \(urlString))")
     }
 
     override func viewDidDisappear(_ animated: Bool) {

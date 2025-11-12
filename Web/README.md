@@ -63,12 +63,53 @@ npm run build:ios
 
 这将构建生产版本并自动复制到 iOS 项目中，用于 Release 构建。
 
+## 🔧 开发模式切换
+
+由于 Vite 构建会修改 `index.html`，我们提供了自动切换脚本来管理开发/生产模式：
+
+### 切换到开发模式
+```bash
+npm run switch-dev
+```
+- 自动将 `index.html` 改为引用 `/src/main.tsx`（源文件）
+- 准备好进行开发调试
+
+### 切换到生产模式
+```bash
+npm run switch-prod
+```
+- 自动运行 `npm run build` 构建
+- 自动更新 `index.html` 为打包版本
+- 准备好集成到 iOS 应用
+
+### 推荐开发流程
+```bash
+# 1. 开始开发
+npm run switch-dev
+npm run dev:ios
+
+# 2. 开发过程中... 修改代码，手机会自动刷新
+
+# 3. 开发完成，准备发布
+npm run switch-prod
+npm run copy-to-ios
+```
+
 ## 可用脚本
 
+### 开发相关
 - `npm run dev` - 启动开发服务器
+- `npm run dev:ios` - 启动 iOS 集成的开发服务器
+- `npm run switch-dev` - 切换到开发模式
+- `npm run switch-prod` - 切换到生产模式并构建
+
+### 构建相关
 - `npm run build` - 构建到 dist 目录
 - `npm run build:ios` - 构建并集成到 iOS 项目
 - `npm run build:ios:dev` - 开发模式构建并集成
+- `npm run copy-to-ios` - 复制构建文件到 iOS 项目
+
+### 其他
 - `npm run preview` - 预览构建结果
 - `npm run lint` - 运行 ESLint 检查
 
@@ -132,6 +173,23 @@ Web 模块通过以下方式与 iOS 应用集成：
 
 ## 故障排除
 
+### 🔥 开发环境问题
+
+#### 按钮颜色不正确
+- **症状**: 按钮显示为灰色或默认颜色
+- **原因**: `index.html` 引用了打包后的文件而非源文件
+- **解决**: 运行 `npm run switch-dev` 切换到开发模式
+
+#### 热重载不工作
+- **症状**: 修改代码后页面不自动刷新
+- **原因**: iOS WebView 对 WebSocket 连接有限制
+- **解决**: 双击屏幕手动刷新，或重新启动应用
+
+#### 页面重复刷新
+- **症状**: 控制台看到重复的日志输出
+- **原因**: 调试代码重复执行
+- **解决**: 重新启动应用，或检查 `window.styleCheckDone` 标志
+
 ### 构建失败
 
 1. 检查 Node.js 版本（建议 18+）
@@ -149,3 +207,14 @@ Web 模块通过以下方式与 iOS 应用集成：
 1. 确保端口 3000 未被占用
 2. 检查防火墙设置
 3. 重启开发服务器
+
+### 📱 调试技巧
+
+#### 查看实时日志
+- Xcode 控制台会显示 WebView 的 `console.log` 输出
+- 搜索 `🌐 [WebView Console]:` 找到前端日志
+
+#### 验证开发模式
+- 看到日志：`🔧 开发模式：启用调试功能和热重载`
+- 看到日志：`✅ Connected to development server`
+- 页面标题显示：`🚀 Web 页面 (热重载测试)`

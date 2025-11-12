@@ -7,31 +7,39 @@ declare global {
   interface Window {
     __DEV__?: boolean
     __PROD__?: boolean
+    styleCheckDone?: boolean
   }
 }
 
 function App() {
   const [counter, setCounter] = useState(0)
+  const [updateTime, setUpdateTime] = useState(new Date().toLocaleTimeString())
+
+  // 每3秒更新一次时间，避免过于频繁
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setUpdateTime(new Date().toLocaleTimeString())
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const isDev = import.meta.env.DEV || window.__DEV__
     console.log('React app loaded successfully', {
       mode: isDev ? 'development' : 'production',
       dev: isDev,
-      prod: import.meta.env.PROD || window.__PROD__
+      prod: import.meta.env.PROD || window.__PROD__,
+      metaEnv: import.meta.env.DEV,
+      windowDev: window.__DEV__
     })
     console.log('Current location:', window.location.href)
+
 
     // 开发环境下的额外功能
     if (isDev) {
       console.log('🔧 Development mode detected - hot reload enabled')
       console.log('🌐 Running on development server - changes will auto-reload in iOS app')
-
-      // 添加开发服务器连接状态检测
-      const checkConnection = () => {
-        console.log('✅ Connected to development server')
-      }
-      checkConnection()
+      console.log('✅ Connected to development server')
     } else {
       console.log('🚀 Production mode - loaded from iOS bundle')
     }
@@ -57,16 +65,16 @@ function App() {
   return (
     <div className="container">
       <header>
-        <h1>Web 页面</h1>
-        <p className="subtitle">React + TypeScript 本地资源缓存加载</p>
+        <h1>🚀 Web 页面 (热重载测试)</h1>
+        <p className="subtitle">React + TypeScript 实时编译测试 - {updateTime}</p>
       </header>
 
       <div className="card">
         <div className="emoji">🌐</div>
-        <h2>欢迎来到 Web 模块</h2>
+        <h2>🎉 欢迎来到 Web 模块 (热重载已启动!)</h2>
         <p className="description">
-          这是一个通过 React + TypeScript 构建的本地 HTML 页面。所有资源都预先打包在 App
-          内部，无需网络连接即可访问。
+          这是一个通过 React + TypeScript 构建的实时 HTML 页面。支持热重载功能，
+          修改代码后会自动在iOS应用中显示，无需重新编译！
         </p>
       </div>
 
@@ -109,14 +117,35 @@ function App() {
         <div className="counter-section">
           <div className="counter-display">{counter}</div>
           <div className="button-group">
-            <button className="btn btn-danger" onClick={decrementCounter}>
-              -
+            <button
+              className="btn btn-danger"
+              style={{ backgroundColor: '#FF3B30' }}
+              onClick={() => {
+                console.log('🔴 减号按钮被点击了！颜色应该是红色')
+                decrementCounter()
+              }}
+            >
+              🔴 -
             </button>
-            <button className="btn btn-primary" onClick={resetCounter}>
-              重置
+            <button
+              className="btn btn-primary"
+              style={{ backgroundColor: '#FF1493' }}
+              onClick={() => {
+                console.log('🔴 重置按钮被点击了！颜色应该是深粉色')
+                resetCounter()
+              }}
+            >
+              🌸 重置
             </button>
-            <button className="btn btn-success" onClick={incrementCounter}>
-              +
+            <button
+              className="btn btn-success"
+              style={{ backgroundColor: '#34C759' }}
+              onClick={() => {
+                console.log('🟢 加号按钮被点击了！颜色应该是绿色')
+                incrementCounter()
+              }}
+            >
+              🟢 +
             </button>
           </div>
         </div>

@@ -139,7 +139,7 @@ class WebViewManager {
 
         // 根据构建模式配置WebView
         if isDevelopmentMode {
-            print("🔧 开发模式：启用调试功能")
+            print("🔧 开发模式：启用调试功能和热重载")
             // 开发模式下允许混合内容和调试
             let preferences = WKWebpagePreferences()
             preferences.allowsContentJavaScript = true
@@ -147,6 +147,11 @@ class WebViewManager {
             // 允许在开发模式下加载不安全的内容
             if #available(iOS 14.0, *) {
                 configuration.limitsNavigationsToAppBoundDomains = false
+            }
+
+            // 开发模式下允许混合内容以支持WebSocket连接
+            if #available(iOS 10.0, *) {
+                configuration.mediaTypesRequiringUserActionForPlayback = []
             }
 
             configuration.defaultWebpagePreferences = preferences
@@ -207,6 +212,17 @@ class WebViewManager {
         print("✅ WebView创建成功，模式：\(isDevelopmentMode ? "开发" : "生产")")
 
         return webView
+    }
+
+    /// 获取实际要加载的URL（用于日志显示）
+    /// - Parameter urlString: 原始URL字符串
+    /// - Returns: 实际加载的URL
+    func getActualURL(for urlString: String) -> String {
+        if isDevelopmentMode && urlString == "local://index.html" {
+            return "http://localhost:3000"
+        } else {
+            return urlString
+        }
     }
 
     /// 加载Web URL（自动选择开发或生产模式）

@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:ios": "node scripts/dev.js",
+    "switch-dev": "node scripts/switch-mode.js --dev",
+    "switch-prod": "node scripts/switch-mode.js",
     "build": "tsc && vite build",
     "build:ios": "node scripts/build.js",
     "build:ios:dev": "node scripts/build.js --dev",
