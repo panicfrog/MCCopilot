@@ -28,6 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // 设置根视图控制器
         setupRootViewController()
+      
+        WasmBridge.shared.initialize()
 
         print("✅ MCCopilot 启动完成")
 

@@ -11,7 +11,21 @@
 		A497BA6FE86601054E42C9CE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		2799CF112ED88749000105A0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		2799CEFC2ED88144000105A0 /* Wasmi.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Wasmi.xcframework; path = ../../wasm/wasmi/artifacts/Wasmi.xcframework; sourceTree = "<group>"; };
 		5E9A71EAFECE66104E91ECCB /* Pods-MCCopilot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MCCopilot.debug.xcconfig"; path = "Target Support Files/Pods-MCCopilot/Pods-MCCopilot.debug.xcconfig"; sourceTree = "<group>"; };
 		7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9CF998B8575E33E110CB3264 /* Pods-MCCopilot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MCCopilot.release.xcconfig"; path = "Target Support Files/Pods-MCCopilot/Pods-MCCopilot.release.xcconfig"; sourceTree = "<group>"; };
@@ -31,11 +45,25 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		2799CF122ED88749000105A0 /* Exceptions for "MCCopilot" folder in "Embed Frameworks" phase from "MCCopilot" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				ThirdFramwork/Wasmi.xcframework = (CodeSignOnCopy, RemoveHeadersOnCopy, );
+			};
+			buildPhase = 2799CF112ED88749000105A0 /* Embed Frameworks */;
+			membershipExceptions = (
+				ThirdFramwork/Wasmi.xcframework,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B88FCD4C2EC1AA6000EA9E18 /* MCCopilot */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B88FCD5C2EC1AA6100EA9E18 /* Exceptions for "MCCopilot" folder in "MCCopilot" target */,
+				2799CF122ED88749000105A0 /* Exceptions for "MCCopilot" folder in "Embed Frameworks" phase from "MCCopilot" target */,
 			);
 			path = MCCopilot;
 			sourceTree = "<group>";
@@ -85,6 +113,7 @@
 		C87CB643922A06F71B883973 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2799CEFC2ED88144000105A0 /* Wasmi.xcframework */,
 				B8C29BBF2EC1BDFB0034E4B1 /* App.xcframework */,
 				B8C29BC02EC1BDFB0034E4B1 /* Flutter.xcframework */,
 				9DD1DFAD2FD9CB7496049737 /* libPods-MCCopilot.a */,
@@ -108,6 +137,7 @@
 				33B8A3F9CCC2F30CBB974EB5 /* [CP] Embed Pods Frameworks */,
 				28EE3CDAF593AEA52E92DEB9 /* [CP] Copy Pods Resources */,
 				4A4E268BA765C95DEE5A0029 /* [CP-User] Embed Flutter Build flutter_app Script */,
+				2799CF112ED88749000105A0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
