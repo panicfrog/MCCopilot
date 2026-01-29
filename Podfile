@@ -21,6 +21,9 @@ target 'MCCopilot' do
     :fabric_enabled => false,
     :app_path => "#{Pod::Config.instance.installation_root}/ReactNative"
   )
+  
+  # Re.Pack native module
+  pod 'callstack-repack', :path => "./ReactNative/node_modules/@callstack/repack"
 
   # Flutter integration via CocoaPods
   install_all_flutter_pods(flutter_application_path)
