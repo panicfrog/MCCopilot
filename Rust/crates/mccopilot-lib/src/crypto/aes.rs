@@ -5,6 +5,10 @@ use aes::{Aes128, Aes192, Aes256};
 use cbc::cipher::{BlockEncryptMut, BlockDecryptMut, KeyIvInit, StreamCipher};
 use cbc::cipher::block_padding::Pkcs7;
 use ctr::Ctr128BE;
+use aes_gcm::{
+    aead::{Aead, KeyInit, Payload},
+    Aes128Gcm, Aes256Gcm, Nonce,
+};
 use rand::RngCore;
 
 // 定义 CBC 加密/解密器类型别名
@@ -177,6 +181,97 @@ pub fn generate_iv() -> Result<Vec<u8>> {
     Ok(iv)
 }
 
+// ==================== AES-GCM 认证加密 ====================
+
+/// AES-GCM 加密
+///
+/// GCM (Galois/Counter Mode) 是一种认证加密模式：
+/// - 同时提供机密性和完整性验证
+/// - 支持 128 位、256 位密钥
+/// - Nonce 长度为 12 字节（推荐）
+/// - 可选附加认证数据 (AAD)
+///
+/// # 参数
+/// - `key`: 密钥（16 或 32 字节）
+/// - `nonce`: 12 字节的 nonce（不要重复使用相同的 nonce 和 key 组合）
+/// - `plaintext`: 明文
+/// - `aad`: 可选的附加认证数据（不会被加密，但会参与认证）
+///
+/// # 返回
+/// 密文 + 16 字节认证标签
+pub fn aes_gcm_encrypt(key: &[u8], nonce: &[u8], plaintext: &[u8], aad: Option<&[u8]>) -> Result<Vec<u8>> {
+    if nonce.len() != 12 {
+        return Err(MCCopilotError::InvalidArgument("Nonce must be 12 bytes for GCM".to_string()));
+    }
+
+    let nonce = Nonce::from_slice(nonce);
+
+    match key.len() {
+        16 => {
+            let cipher = Aes128Gcm::new_from_slice(key)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-128-GCM init error: {}", e)))?;
+            let payload = Payload { msg: plaintext, aad: aad.unwrap_or(&[]) };
+            cipher.encrypt(nonce, payload)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-128-GCM encrypt error: {}", e)))
+        }
+        32 => {
+            let cipher = Aes256Gcm::new_from_slice(key)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-256-GCM init error: {}", e)))?;
+            let payload = Payload { msg: plaintext, aad: aad.unwrap_or(&[]) };
+            cipher.encrypt(nonce, payload)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-256-GCM encrypt error: {}", e)))
+        }
+        _ => Err(MCCopilotError::InvalidArgument(
+            "Key must be 16 or 32 bytes for GCM".to_string(),
+        )),
+    }
+}
+
+/// AES-GCM 解密
+///
+/// # 参数
+/// - `key`: 密钥（16 或 32 字节）
+/// - `nonce`: 12 字节的 nonce
+/// - `ciphertext`: 密文 + 16 字节认证标签
+/// - `aad`: 可选的附加认证数据（必须与加密时相同）
+///
+/// # 返回
+/// 明文，如果认证失败则返回错误
+pub fn aes_gcm_decrypt(key: &[u8], nonce: &[u8], ciphertext: &[u8], aad: Option<&[u8]>) -> Result<Vec<u8>> {
+    if nonce.len() != 12 {
+        return Err(MCCopilotError::InvalidArgument("Nonce must be 12 bytes for GCM".to_string()));
+    }
+
+    let nonce = Nonce::from_slice(nonce);
+
+    match key.len() {
+        16 => {
+            let cipher = Aes128Gcm::new_from_slice(key)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-128-GCM init error: {}", e)))?;
+            let payload = Payload { msg: ciphertext, aad: aad.unwrap_or(&[]) };
+            cipher.decrypt(nonce, payload)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-128-GCM decrypt error (authentication failed): {}", e)))
+        }
+        32 => {
+            let cipher = Aes256Gcm::new_from_slice(key)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-256-GCM init error: {}", e)))?;
+            let payload = Payload { msg: ciphertext, aad: aad.unwrap_or(&[]) };
+            cipher.decrypt(nonce, payload)
+                .map_err(|e| MCCopilotError::Crypto(format!("AES-256-GCM decrypt error (authentication failed): {}", e)))
+        }
+        _ => Err(MCCopilotError::InvalidArgument(
+            "Key must be 16 or 32 bytes for GCM".to_string(),
+        )),
+    }
+}
+
+/// 生成随机 GCM Nonce (12 字节)
+pub fn generate_gcm_nonce() -> Result<Vec<u8>> {
+    let mut nonce = vec![0u8; 12];
+    rand::rngs::OsRng.fill_bytes(&mut nonce);
+    Ok(nonce)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -229,5 +324,90 @@ mod tests {
             let decrypted = aes_cbc_decrypt(key, &iv, &ciphertext).unwrap();
             assert_eq!(plaintext.to_vec(), decrypted, "{} round trip failed", key_size);
         }
+    }
+
+    // ==================== AES-GCM Tests ====================
+
+    #[test]
+    fn test_aes_gcm_round_trip() {
+        let key = [0u8; 32]; // AES-256-GCM
+        let nonce = generate_gcm_nonce().unwrap();
+        let plaintext = b"hello, world!";
+
+        let ciphertext = aes_gcm_encrypt(&key, &nonce, plaintext, None).unwrap();
+        let decrypted = aes_gcm_decrypt(&key, &nonce, &ciphertext, None).unwrap();
+
+        assert_eq!(plaintext.to_vec(), decrypted);
+    }
+
+    #[test]
+    fn test_aes_gcm_with_aad() {
+        let key = [0u8; 32];
+        let nonce = generate_gcm_nonce().unwrap();
+        let plaintext = b"secret message";
+        let aad = b"additional authenticated data";
+
+        let ciphertext = aes_gcm_encrypt(&key, &nonce, plaintext, Some(aad)).unwrap();
+        let decrypted = aes_gcm_decrypt(&key, &nonce, &ciphertext, Some(aad)).unwrap();
+
+        assert_eq!(plaintext.to_vec(), decrypted);
+    }
+
+    #[test]
+    fn test_aes_gcm_authentication_failure() {
+        let key = [0u8; 32];
+        let nonce = generate_gcm_nonce().unwrap();
+        let plaintext = b"secret message";
+
+        let mut ciphertext = aes_gcm_encrypt(&key, &nonce, plaintext, None).unwrap();
+
+        // 修改密文，应该导致认证失败
+        ciphertext[0] ^= 0xFF;
+
+        let result = aes_gcm_decrypt(&key, &nonce, &ciphertext, None);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_aes_gcm_wrong_aad() {
+        let key = [0u8; 32];
+        let nonce = generate_gcm_nonce().unwrap();
+        let plaintext = b"secret message";
+        let aad = b"correct aad";
+
+        let ciphertext = aes_gcm_encrypt(&key, &nonce, plaintext, Some(aad)).unwrap();
+
+        // 使用错误的 AAD 解密应该失败
+        let wrong_aad = b"wrong aad";
+        let result = aes_gcm_decrypt(&key, &nonce, &ciphertext, Some(wrong_aad));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_aes_gcm_different_key_sizes() {
+        for (key, key_size) in [
+            (&[0u8; 16][..], "AES-128-GCM"),
+            (&[0u8; 32][..], "AES-256-GCM"),
+        ] {
+            let nonce = generate_gcm_nonce().unwrap();
+            let plaintext = b"test data";
+            let ciphertext = aes_gcm_encrypt(key, &nonce, plaintext, None).unwrap();
+            let decrypted = aes_gcm_decrypt(key, &nonce, &ciphertext, None).unwrap();
+            assert_eq!(plaintext.to_vec(), decrypted, "{} round trip failed", key_size);
+        }
+    }
+
+    #[test]
+    fn test_aes_gcm_empty_data() {
+        let key = [0u8; 32];
+        let nonce = generate_gcm_nonce().unwrap();
+        let plaintext = b"";
+
+        let ciphertext = aes_gcm_encrypt(&key, &nonce, plaintext, None).unwrap();
+        // 即使是空数据，GCM 也会产生 16 字节的认证标签
+        assert_eq!(ciphertext.len(), 16);
+
+        let decrypted = aes_gcm_decrypt(&key, &nonce, &ciphertext, None).unwrap();
+        assert_eq!(plaintext.to_vec(), decrypted);
     }
 }
