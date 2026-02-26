@@ -1,0 +1,13 @@
+[package]
+name = "mccopilot-plugin"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+wasmi = "0.31"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+
+mccopilot-lib = { path = "../mccopilot-lib" }
