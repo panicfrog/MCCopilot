@@ -1,0 +1,4 @@
+module MccopilotBridgeFFI {
+    header "mccopilot.h"
+    export *
+}

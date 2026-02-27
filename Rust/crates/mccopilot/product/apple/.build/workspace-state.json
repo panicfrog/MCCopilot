@@ -1,0 +1,31 @@
+{
+  "object" : {
+    "artifacts" : [
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "apple",
+          "kind" : "root",
+          "location" : "/Volumes/YYP_PSSD/Source/hybird/MCCopilot/Rust/crates/mccopilot/product/apple",
+          "name" : "apple"
+        },
+        "path" : "/Volumes/YYP_PSSD/Source/hybird/MCCopilot/Rust/crates/mccopilot/product/apple/MccopilotBridge.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "MccopilotBridgeFFI"
+      }
+    ],
+    "dependencies" : [
+
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}
