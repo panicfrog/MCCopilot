@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1F87E88376B34FD2296831EC /* libPods-MCCopilot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD1DFAD2FD9CB7496049737 /* libPods-MCCopilot.a */; };
 		A497BA6FE86601054E42C9CE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7413FB56D0113CDE9E64DF96 /* PrivacyInfo.xcprivacy */; };
+		B81234812F5159E60075D21B /* MccopilotBridge in Frameworks */ = {isa = PBXBuildFile; productRef = B81234802F5159E60075D21B /* MccopilotBridge */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,22 +46,11 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		2799CF122ED88749000105A0 /* Exceptions for "MCCopilot" folder in "Embed Frameworks" build phase */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 2799CF112ED88749000105A0 /* Embed Frameworks */;
-			membershipExceptions = (
-				ThirdFramwork/Wasmi.xcframework,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B88FCD4C2EC1AA6000EA9E18 /* MCCopilot */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B88FCD5C2EC1AA6100EA9E18 /* Exceptions for "MCCopilot" folder in "MCCopilot" target */,
-				2799CF122ED88749000105A0 /* Exceptions for "MCCopilot" folder in "Embed Frameworks" build phase */,
 			);
 			path = MCCopilot;
 			sourceTree = "<group>";
@@ -72,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B81234812F5159E60075D21B /* MccopilotBridge in Frameworks */,
 				1F87E88376B34FD2296831EC /* libPods-MCCopilot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,6 +163,9 @@
 			);
 			mainGroup = B88FCD412EC1AA6000EA9E18;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B812347F2F5159E60075D21B /* XCLocalSwiftPackageReference "Rust/crates/mccopilot/product/apple" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B88FCD4B2EC1AA6000EA9E18 /* Products */;
 			projectDirPath = "";
@@ -228,9 +222,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -267,9 +265,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MCCopilot/Pods-MCCopilot-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -281,7 +283,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Embed Flutter Build flutter_app Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/Flutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh embed_and_thin";
@@ -291,7 +297,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Run Flutter Build flutter_app Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/Flutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh build";
@@ -456,10 +466,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/.././ReactNative/node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -530,10 +537,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/.././ReactNative/node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -564,6 +568,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B812347F2F5159E60075D21B /* XCLocalSwiftPackageReference "Rust/crates/mccopilot/product/apple" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Rust/crates/mccopilot/product/apple;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B81234802F5159E60075D21B /* MccopilotBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MccopilotBridge;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B88FCD422EC1AA6000EA9E18 /* Project object */;
 }
