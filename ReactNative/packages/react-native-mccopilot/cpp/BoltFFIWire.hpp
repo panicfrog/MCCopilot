@@ -38,7 +38,10 @@ public:
 
   void writeBytes(const uint8_t* ptr, size_t len) {
     writeU32(static_cast<uint32_t>(len));
-    if (len > 0 && ptr != nullptr) {
+    if (len > 0) {
+      if (ptr == nullptr) {
+        throw std::runtime_error("BoltFFI: writeBytes called with null pointer and non-zero length");
+      }
       bytes_.insert(bytes_.end(), ptr, ptr + len);
     }
   }
@@ -61,15 +64,27 @@ class WireReader {
   size_t len_;
   size_t pos_ = 0;
 
+  void ensureAvailable(size_t n) const {
+    if (n > len_ || pos_ > len_ - n) {
+      size_t remaining = (pos_ <= len_) ? (len_ - pos_) : 0;
+      throw std::runtime_error("BoltFFI: buffer underflow (need " +
+        std::to_string(n) + " bytes at pos " +
+        std::to_string(pos_) + ", but only " +
+        std::to_string(remaining) + " remaining)");
+    }
+  }
+
 public:
   WireReader(const uint8_t* data, size_t len)
     : data_(data), len_(len) {}
 
   uint8_t readU8() {
+    ensureAvailable(1);
     return data_[pos_++];
   }
 
   int32_t readI32() {
+    ensureAvailable(4);
     int32_t v;
     std::memcpy(&v, data_ + pos_, 4);
     pos_ += 4;
@@ -77,6 +92,7 @@ public:
   }
 
   uint32_t readU32() {
+    ensureAvailable(4);
     uint32_t v;
     std::memcpy(&v, data_ + pos_, 4);
     pos_ += 4;
@@ -84,12 +100,14 @@ public:
   }
 
   bool readBool() {
+    ensureAvailable(1);
     return data_[pos_++] != 0;
   }
 
   std::string readString() {
     uint32_t len = readU32();
     if (len == 0) return "";
+    ensureAvailable(len);
     std::string s(reinterpret_cast<const char*>(data_ + pos_), len);
     pos_ += len;
     return s;
@@ -98,12 +116,14 @@ public:
   std::vector<uint8_t> readBytes() {
     uint32_t len = readU32();
     if (len == 0) return {};
+    ensureAvailable(len);
     std::vector<uint8_t> buf(data_ + pos_, data_ + pos_ + len);
     pos_ += len;
     return buf;
   }
 
   bool readOptionalFlag() {
+    ensureAvailable(1);
     return data_[pos_++] != 0;
   }
 
@@ -114,6 +134,7 @@ public:
 
   template<typename T>
   T readBlittable() {
+    ensureAvailable(sizeof(T));
     T v;
     std::memcpy(&v, data_ + pos_, sizeof(T));
     pos_ += sizeof(T);

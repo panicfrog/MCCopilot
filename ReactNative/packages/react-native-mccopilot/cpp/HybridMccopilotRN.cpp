@@ -2,6 +2,8 @@
 #include "BoltFFIWire.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <stdexcept>
+#include <cmath>
+#include <limits>
 
 extern "C" {
 #include "mccopilot.h"
@@ -14,6 +16,20 @@ using ::mccopilot::WireReader;
 using ::mccopilot::StringResult;
 using ::mccopilot::BytesResult;
 
+// RAII guard for FfiBuf_u8, prevents memory leaks on exceptions
+class FfiBufGuard {
+  FfiBuf_u8 buf_;
+
+public:
+  explicit FfiBufGuard(FfiBuf_u8 buf) : buf_(buf) {}
+  ~FfiBufGuard() { boltffi_free_buf_u8(buf_); }
+  FfiBufGuard(const FfiBufGuard&) = delete;
+  FfiBufGuard& operator=(const FfiBufGuard&) = delete;
+
+  const uint8_t* data() const { return buf_.ptr; }
+  size_t size() const { return buf_.len; }
+};
+
 // --- helpers ---
 
 static int32_t parseHashAlgorithm(const std::string& algo) {
@@ -23,17 +39,23 @@ static int32_t parseHashAlgorithm(const std::string& algo) {
   throw std::runtime_error("Unknown hash algorithm: " + algo);
 }
 
+static uint32_t safeToU32(double v, const char* name) {
+  if (std::isnan(v) || v < 0 || v > static_cast<double>(std::numeric_limits<uint32_t>::max())) {
+    throw std::runtime_error(std::string(name) + " must be a non-negative integer within uint32 range");
+  }
+  return static_cast<uint32_t>(v);
+}
+
 static void writeArgon2Params(WireWriter& w, const std::optional<Argon2Params>& params) {
   if (!params.has_value()) {
     w.writeU8(0);
     return;
   }
   w.writeU8(1);
-  // Argon2Params is blittable as 4x uint32 in the BoltFFI wire format
-  w.writeBlittable(static_cast<uint32_t>(params->memoryCost));
-  w.writeBlittable(static_cast<uint32_t>(params->timeCost));
-  w.writeBlittable(static_cast<uint32_t>(params->parallelism));
-  w.writeBlittable(static_cast<uint32_t>(params->outputLength));
+  w.writeBlittable(safeToU32(params->memoryCost, "memoryCost"));
+  w.writeBlittable(safeToU32(params->timeCost, "timeCost"));
+  w.writeBlittable(safeToU32(params->parallelism, "parallelism"));
+  w.writeBlittable(safeToU32(params->outputLength, "outputLength"));
 }
 
 static void writeBuffer(WireWriter& w, const std::shared_ptr<ArrayBuffer>& buf) {
@@ -45,8 +67,12 @@ static void writeOptionalBuffer(WireWriter& w, const std::optional<std::shared_p
     w.writeU8(0);
     return;
   }
+  const auto& val = buf.value();
+  if (!val) {
+    throw std::runtime_error("BoltFFI: optional ArrayBuffer has value but shared_ptr is null");
+  }
   w.writeU8(1);
-  writeBuffer(w, buf.value());
+  writeBuffer(w, val);
 }
 
 static std::shared_ptr<ArrayBuffer> bytesToArrayBuffer(const std::vector<uint8_t>& bytes) {
@@ -59,11 +85,9 @@ static std::shared_ptr<ArrayBuffer> bytesToArrayBuffer(const std::vector<uint8_t
 // --- HybridMccopilotRN implementation ---
 
 std::string HybridMccopilotRN::getVersion() {
-  FfiBuf_u8 buf = boltffi_get_version();
-  WireReader reader(buf.ptr, buf.len);
-  std::string version = reader.readString();
-  boltffi_free_buf_u8(buf);
-  return version;
+  FfiBufGuard guard(boltffi_get_version());
+  WireReader reader(guard.data(), guard.size());
+  return reader.readString();
 }
 
 std::string HybridMccopilotRN::cryptoHash(
@@ -75,12 +99,11 @@ std::string HybridMccopilotRN::cryptoHash(
   WireWriter dataW;
   writeBuffer(dataW, data);
 
-  FfiBuf_u8 buf = boltffi_crypto_hash(
+  FfiBufGuard guard(boltffi_crypto_hash(
     algoW.data(), algoW.size(),
-    dataW.data(), dataW.size());
-  WireReader reader(buf.ptr, buf.len);
+    dataW.data(), dataW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = StringResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return result.data;
 }
@@ -90,18 +113,19 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoHkdfDerive(
     const std::shared_ptr<ArrayBuffer>& ikm,
     const std::optional<std::shared_ptr<ArrayBuffer>>& info,
     double outputLength) {
+  auto outLen = safeToU32(outputLength, "outputLength");
+
   WireWriter saltW; writeBuffer(saltW, salt);
   WireWriter ikmW;  writeBuffer(ikmW, ikm);
   WireWriter infoW; writeOptionalBuffer(infoW, info);
 
-  FfiBuf_u8 buf = boltffi_crypto_hkdf_derive(
+  FfiBufGuard guard(boltffi_crypto_hkdf_derive(
     saltW.data(), saltW.size(),
     ikmW.data(), ikmW.size(),
     infoW.data(), infoW.size(),
-    static_cast<uintptr_t>(outputLength));
-  WireReader reader(buf.ptr, buf.len);
+    static_cast<uintptr_t>(outLen)));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -111,17 +135,19 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoPbkdf2Derive(
     const std::shared_ptr<ArrayBuffer>& salt,
     double iterations,
     double outputLength) {
+  auto iter   = safeToU32(iterations, "iterations");
+  auto outLen = safeToU32(outputLength, "outputLength");
+
   WireWriter pwW;   writeBuffer(pwW, password);
   WireWriter saltW; writeBuffer(saltW, salt);
 
-  FfiBuf_u8 buf = boltffi_crypto_pbkdf2_derive(
+  FfiBufGuard guard(boltffi_crypto_pbkdf2_derive(
     pwW.data(), pwW.size(),
     saltW.data(), saltW.size(),
-    static_cast<uint32_t>(iterations),
-    static_cast<uintptr_t>(outputLength));
-  WireReader reader(buf.ptr, buf.len);
+    iter,
+    static_cast<uintptr_t>(outLen)));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -134,13 +160,12 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesCbcEncrypt(
   WireWriter ivW;  writeBuffer(ivW, iv);
   WireWriter ptW;  writeBuffer(ptW, plaintext);
 
-  FfiBuf_u8 buf = boltffi_crypto_aes_cbc_encrypt(
+  FfiBufGuard guard(boltffi_crypto_aes_cbc_encrypt(
     keyW.data(), keyW.size(),
     ivW.data(), ivW.size(),
-    ptW.data(), ptW.size());
-  WireReader reader(buf.ptr, buf.len);
+    ptW.data(), ptW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -153,13 +178,12 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesCbcDecrypt(
   WireWriter ivW;  writeBuffer(ivW, iv);
   WireWriter ctW;  writeBuffer(ctW, ciphertext);
 
-  FfiBuf_u8 buf = boltffi_crypto_aes_cbc_decrypt(
+  FfiBufGuard guard(boltffi_crypto_aes_cbc_decrypt(
     keyW.data(), keyW.size(),
     ivW.data(), ivW.size(),
-    ctW.data(), ctW.size());
-  WireReader reader(buf.ptr, buf.len);
+    ctW.data(), ctW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -172,13 +196,12 @@ std::string HybridMccopilotRN::cryptoAesCtr(
   WireWriter nonceW; writeBuffer(nonceW, nonce);
   WireWriter dataW;  writeBuffer(dataW, data);
 
-  FfiBuf_u8 buf = boltffi_crypto_aes_ctr(
+  FfiBufGuard guard(boltffi_crypto_aes_ctr(
     keyW.data(), keyW.size(),
     nonceW.data(), nonceW.size(),
-    dataW.data(), dataW.size());
-  WireReader reader(buf.ptr, buf.len);
+    dataW.data(), dataW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = StringResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return result.data;
 }
@@ -193,14 +216,13 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesGcmEncrypt(
   WireWriter ptW;    writeBuffer(ptW, plaintext);
   WireWriter aadW;   writeOptionalBuffer(aadW, aad);
 
-  FfiBuf_u8 buf = boltffi_crypto_aes_gcm_encrypt(
+  FfiBufGuard guard(boltffi_crypto_aes_gcm_encrypt(
     keyW.data(), keyW.size(),
     nonceW.data(), nonceW.size(),
     ptW.data(), ptW.size(),
-    aadW.data(), aadW.size());
-  WireReader reader(buf.ptr, buf.len);
+    aadW.data(), aadW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -215,32 +237,29 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesGcmDecrypt(
   WireWriter ctW;    writeBuffer(ctW, ciphertext);
   WireWriter aadW;   writeOptionalBuffer(aadW, aad);
 
-  FfiBuf_u8 buf = boltffi_crypto_aes_gcm_decrypt(
+  FfiBufGuard guard(boltffi_crypto_aes_gcm_decrypt(
     keyW.data(), keyW.size(),
     nonceW.data(), nonceW.size(),
     ctW.data(), ctW.size(),
-    aadW.data(), aadW.size());
-  WireReader reader(buf.ptr, buf.len);
+    aadW.data(), aadW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
 
 std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesGcmGenerateNonce() {
-  FfiBuf_u8 buf = boltffi_crypto_aes_gcm_generate_nonce();
-  WireReader reader(buf.ptr, buf.len);
+  FfiBufGuard guard(boltffi_crypto_aes_gcm_generate_nonce());
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
 
 std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoAesGenerateIv() {
-  FfiBuf_u8 buf = boltffi_crypto_aes_generate_iv();
-  WireReader reader(buf.ptr, buf.len);
+  FfiBufGuard guard(boltffi_crypto_aes_generate_iv());
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -251,13 +270,12 @@ std::string HybridMccopilotRN::cryptoArgon2Hash(
   WireWriter paramsW;
   writeArgon2Params(paramsW, params);
 
-  FfiBuf_u8 buf = boltffi_crypto_argon2_hash(
+  FfiBufGuard guard(boltffi_crypto_argon2_hash(
     reinterpret_cast<const uint8_t*>(password.data()),
     static_cast<uintptr_t>(password.size()),
-    paramsW.data(), paramsW.size());
-  WireReader reader(buf.ptr, buf.len);
+    paramsW.data(), paramsW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = StringResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return result.data;
 }
@@ -271,13 +289,12 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoArgon2HashWithSalt(
   WireWriter paramsW;
   writeArgon2Params(paramsW, params);
 
-  FfiBuf_u8 buf = boltffi_crypto_argon2_hash_with_salt(
+  FfiBufGuard guard(boltffi_crypto_argon2_hash_with_salt(
     pwW.data(), pwW.size(),
     saltW.data(), saltW.size(),
-    paramsW.data(), paramsW.size());
-  WireReader reader(buf.ptr, buf.len);
+    paramsW.data(), paramsW.size()));
+  WireReader reader(guard.data(), guard.size());
   auto result = BytesResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return bytesToArrayBuffer(result.data);
 }
@@ -285,14 +302,13 @@ std::shared_ptr<ArrayBuffer> HybridMccopilotRN::cryptoArgon2HashWithSalt(
 bool HybridMccopilotRN::cryptoArgon2Verify(
     const std::string& password,
     const std::string& hash) {
-  FfiBuf_u8 buf = boltffi_crypto_argon2_verify(
+  FfiBufGuard guard(boltffi_crypto_argon2_verify(
     reinterpret_cast<const uint8_t*>(password.data()),
     static_cast<uintptr_t>(password.size()),
     reinterpret_cast<const uint8_t*>(hash.data()),
-    static_cast<uintptr_t>(hash.size()));
-  WireReader reader(buf.ptr, buf.len);
+    static_cast<uintptr_t>(hash.size())));
+  WireReader reader(guard.data(), guard.size());
   auto result = StringResult::decode(reader);
-  boltffi_free_buf_u8(buf);
   result.throwIfError();
   return result.data == "true";
 }
