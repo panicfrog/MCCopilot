@@ -11,7 +11,7 @@ import UIKit
 /// React Native Tab视图控制器
 class ReactNativeViewController: UIViewController {
 
-    private var rootView: RCTRootView?
+    private var rootView: UIView?
     private let moduleName: String
     private let initialProps: [String: Any]?
 

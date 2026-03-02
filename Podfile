@@ -1,3 +1,5 @@
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -12,21 +14,29 @@ prepare_react_native_project!
 flutter_application_path = 'Flutter'
 load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
 
+rn_dir = 'ReactNative'
+rn_modules = "#{rn_dir}/node_modules"
+
 target 'MCCopilot' do
-  # React Native configuration - following official docs
-  # Don't use use_frameworks! for React Native integration
   use_react_native!(
-    :path => "./ReactNative/node_modules/react-native",
+    :path => "#{rn_modules}/react-native",
     :hermes_enabled => true,
-    :fabric_enabled => false,
-    :app_path => "#{Pod::Config.instance.installation_root}/ReactNative"
+    :fabric_enabled => true,
+    :app_path => "#{Pod::Config.instance.installation_root}/#{rn_dir}"
   )
   
   # Re.Pack native module
-  pod 'callstack-repack', :path => "./ReactNative/node_modules/@callstack/repack"
+  pod 'callstack-repack', :path => "#{rn_modules}/@callstack/repack"
 
   # Rust MccopilotBridge via CocoaPods
-  pod 'MccopilotBridge', :path => './Rust/crates/mccopilot/product/apple'
+  pod 'MccopilotBridge', :path => 'Rust/crates/mccopilot/product/apple'
+
+  # NitroModules core
+  ENV['NODE_PATH'] = File.join(__dir__, rn_modules)
+  pod 'NitroModules', :path => "#{rn_modules}/react-native-nitro-modules"
+
+  # NitroModule: MccopilotRN (C++ -> Rust FFI bridge for React Native)
+  pod 'MccopilotRN', :path => "#{rn_dir}/packages/react-native-mccopilot"
 
   # Flutter integration via CocoaPods
   install_all_flutter_pods(flutter_application_path)
@@ -38,7 +48,7 @@ target 'MCCopilot' do
     # React Native post install
     react_native_post_install(
       installer,
-      "./ReactNative/node_modules/react-native",
+      "#{rn_modules}/react-native",
       :mac_catalyst_enabled => false
     )
     

@@ -1,0 +1,13 @@
+{
+  "name": "react-native-mccopilot",
+  "version": "0.1.0",
+  "main": "src/index",
+  "devDependencies": {
+    "nitrogen": "^0.34.1"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-nitro-modules": "*"
+  }
+}

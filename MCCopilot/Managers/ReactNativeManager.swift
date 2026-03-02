@@ -7,67 +7,65 @@
 
 import Foundation
 import React
+import React_RCTAppDelegate
 
-/// React Native管理器 - 管理单个Bridge实例
+/// React Native管理器 - 使用 RCTRootViewFactory 支持 New Architecture (TurboModules)
 class ReactNativeManager {
 
     static let shared = ReactNativeManager()
 
-    private var bridge: RCTBridge?
+    private var rootViewFactory: RCTRootViewFactory?
 
     private init() {}
 
-    /// 初始化React Native Bridge
+    /// 初始化React Native
     func initializeBridge() {
-        if bridge != nil {
-            print("⚠️ React Native Bridge已经初始化")
+        if rootViewFactory != nil {
+            print("⚠️ React Native已经初始化")
             return
         }
 
-        print("🚀 正在初始化React Native Bridge...")
+        print("🚀 正在初始化React Native...")
 
         #if DEBUG
-            // 开发模式：从Metro服务器加载
-            let jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(
+            guard let bundleURL = RCTBundleURLProvider.sharedSettings().jsBundleURL(
                 forBundleRoot: "index"
-            )
+            ) else {
+                print("❌ 无法获取React Native bundle URL")
+                return
+            }
         #else
-            // 生产模式：从本地bundle加载
             guard
-                let jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+                let bundleURL = Bundle.main.url(forResource: "main", withExtension: "jsbundle")
             else {
                 print("❌ 找不到React Native bundle文件")
                 return
             }
         #endif
 
-        bridge = RCTBridge(bundleURL: jsCodeLocation, moduleProvider: nil, launchOptions: nil)
+        let configuration = RCTRootViewFactoryConfiguration(
+            bundleURL: bundleURL,
+            newArchEnabled: true
+        )
 
-        if bridge != nil {
-            print("✅ React Native Bridge初始化成功")
-        } else {
-            print("❌ React Native Bridge初始化失败")
-        }
+        rootViewFactory = RCTRootViewFactory(configuration: configuration)
+
+        print("✅ React Native初始化成功")
     }
 
     /// 创建React Native视图
-    /// - Parameters:
-    ///   - moduleName: 注册的模块名称
-    ///   - initialProps: 初始属性
-    /// - Returns: RCTRootView实例
     func createReactNativeView(moduleName: String, initialProps: [String: Any]? = nil)
-        -> RCTRootView?
+        -> UIView?
     {
-        guard let bridge = bridge else {
-            print("❌ React Native Bridge未初始化，无法创建视图")
+        guard let factory = rootViewFactory else {
+            print("❌ React Native未初始化，无法创建视图")
             return nil
         }
 
         print("📱 创建React Native视图: \(moduleName)")
 
-        let rootView = RCTRootView(
-            bridge: bridge,
-            moduleName: moduleName,
+        let rootView = factory.view(
+            withModuleName: moduleName,
             initialProperties: initialProps
         )
 
@@ -78,13 +76,13 @@ class ReactNativeManager {
 
     /// 获取Bridge实例（用于高级用途）
     func getBridge() -> RCTBridge? {
-        return bridge
+        return rootViewFactory?.bridge
     }
 
     /// 重新加载React Native（用于开发）
     func reload() {
         #if DEBUG
-            bridge?.reload()
+            RCTTriggerReloadCommandListeners("Manual reload")
             print("🔄 React Native已重新加载")
         #else
             print("⚠️ 生产环境不支持重新加载")
@@ -93,8 +91,8 @@ class ReactNativeManager {
 
     /// 清理资源
     func cleanup() {
-        bridge?.invalidate()
-        bridge = nil
-        print("🗑️ React Native Bridge已清理")
+        rootViewFactory?.bridge?.invalidate()
+        rootViewFactory = nil
+        print("🗑️ React Native已清理")
     }
 }
