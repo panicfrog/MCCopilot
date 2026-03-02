@@ -5,7 +5,7 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', File.join(__dir__, 'ReactNative')]).strip
 
-platform :ios, '15.1'
+platform :ios, '16.0'
 prepare_react_native_project!
 
 # Flutter configuration
@@ -25,6 +25,9 @@ target 'MCCopilot' do
   # Re.Pack native module
   pod 'callstack-repack', :path => "./ReactNative/node_modules/@callstack/repack"
 
+  # Rust MccopilotBridge via CocoaPods
+  pod 'MccopilotBridge', :path => './Rust/crates/mccopilot/product/apple'
+
   # Flutter integration via CocoaPods
   install_all_flutter_pods(flutter_application_path)
   
@@ -42,7 +45,7 @@ target 'MCCopilot' do
     # Common configurations
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
         config.build_settings['ENABLE_BITCODE'] = 'NO'
       end
     end
