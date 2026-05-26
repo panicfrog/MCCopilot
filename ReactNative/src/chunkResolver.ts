@@ -1,3 +1,7 @@
+declare const TextEncoder: {
+  new (): {encode(input: string): Uint8Array};
+};
+
 import {Script, ScriptManager} from '@callstack/repack/client';
 import {API_BASE_URL} from './config';
 import {NativeModules} from 'react-native';
@@ -87,7 +91,7 @@ export function setupChunkResolver() {
 
     // 4. Verify hash with Rust SHA-256
     const dataBuffer = new TextEncoder().encode(chunkData);
-    const actualHash = MccopilotRNModule.cryptoHash('sha256', dataBuffer.buffer);
+    const actualHash = MccopilotRNModule.cryptoHash('sha256', dataBuffer.buffer as ArrayBuffer);
     if (actualHash !== chunkMeta.hash) {
       throw new Error(
         `Chunk "${scriptId}" hash mismatch: expected ${chunkMeta.hash}, got ${actualHash}`,
