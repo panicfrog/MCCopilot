@@ -21,6 +21,13 @@
       "icon": "bolt.fill"
     },
     {
+      "id": "tab4",
+      "title": "远程RN",
+      "type": "react-native",
+      "moduleName": "SecondRNApp",
+      "icon": "arrow.down.circle.fill"
+    },
+    {
       "id": "tab6",
       "title": "Web",
       "type": "web",

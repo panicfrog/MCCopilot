@@ -32,5 +32,23 @@ export default Repack.defineRspackConfig({
       ...Repack.getAssetTransformRules(),
     ],
   },
-  plugins: [new Repack.RepackPlugin()],
+  optimization: {
+    splitChunks: {
+      chunks: 'async',
+      minSize: 0,
+    },
+  },
+  output: {
+    chunkFilename: '[name].chunk.bundle',
+  },
+  plugins: [
+    new Repack.RepackPlugin({
+      extraChunks: [
+        {
+          type: 'remote',
+          outputPath: path.resolve(__dirname, 'build/outputs/ios/remotes'),
+        },
+      ],
+    }),
+  ],
 });

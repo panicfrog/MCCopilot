@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "rn": {
+    "minimum_client_version": "1.0.0",
+    "chunks": {
+      "SecondRNApp": {
+        "hash": "1019d461de5d4884d3ce84431bb41ca4568a45d34ff6a1438452bbe157628ca8",
+        "size": 2446,
+        "path": "rn/chunks/SecondRNApp.1019d461de5d4884d3ce84431bb41ca4568a45d34ff6a1438452bbe157628ca8.js"
+      }
+    }
+  }
+}

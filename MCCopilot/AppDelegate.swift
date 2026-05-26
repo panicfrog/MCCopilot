@@ -38,6 +38,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func initializeReactNative() {
         print("🔧 初始化React Native...")
+
+        // Initialize chunk cache manager and run startup cleanup
+        ChunkCacheManager.shared.cleanStaleCache()
+
         ReactNativeManager.shared.initializeBridge()
     }
 

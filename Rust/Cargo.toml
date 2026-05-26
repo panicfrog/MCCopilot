@@ -5,6 +5,7 @@ members = [
     "crates/mccopilot-dart",
     "crates/mccopilot-lib",
     "crates/mccopilot-plugin",
+    "crates/mccopilot-server",
 ]
 
 [workspace.package]

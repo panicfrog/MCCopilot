@@ -12,24 +12,25 @@ const SecondRNApp: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>第二个 RN 模块</Text>
-          <Text style={styles.subtitle}>共享同一个 Bridge</Text>
+          <Text style={styles.title}>远程模块 v4</Text>
+          <Text style={styles.subtitle}>通过 API 动态加载</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.emoji}>🚀</Text>
+          <Text style={styles.emoji}>📦</Text>
           <Text style={styles.description}>
-            这是另一个独立的React Native模块，它与ExampleRNApp共享同一个Bridge实例，
-            但可以有完全不同的UI和逻辑。
+            这个页面是从远程服务器动态下载的！chunk 通过 mccopilot-server 分发，
+            本地缓存后离线也可用。
           </Text>
         </View>
 
         <View style={styles.featureList}>
-          <Text style={styles.featureTitle}>特性：</Text>
-          <FeatureItem text="独立的组件树" />
-          <FeatureItem text="共享的JavaScript运行时" />
-          <FeatureItem text="更高的性能和更低的内存占用" />
-          <FeatureItem text="便于模块化开发" />
+          <Text style={styles.featureTitle}>动态加载流程：</Text>
+          <FeatureItem text="检查本地缓存" />
+          <FeatureItem text="获取远程 manifest" />
+          <FeatureItem text="下载最新 chunk" />
+          <FeatureItem text="缓存到本地文件" />
+          <FeatureItem text="hash 校验自动更新" />
         </View>
       </ScrollView>
     </SafeAreaView>

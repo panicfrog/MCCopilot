@@ -57,8 +57,15 @@ target 'MCCopilot' do
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
         config.build_settings['ENABLE_BITCODE'] = 'NO'
+        if target.name == 'fmt'
+          definitions = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+          definitions = [definitions] if definitions.is_a?(String)
+          unless definitions.include?('FMT_USE_CONSTEVAL=0')
+            definitions << 'FMT_USE_CONSTEVAL=0'
+          end
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions
+        end
       end
     end
   end
 end
-

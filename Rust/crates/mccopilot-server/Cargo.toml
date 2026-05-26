@@ -1,0 +1,27 @@
+[package]
+name = "mccopilot-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "mccopilot-server"
+path = "src/main.rs"
+
+[dependencies]
+mccopilot-lib.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.8", features = ["multipart", "macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+aws-sdk-s3 = "1"
+aws-config = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dotenvy = "0.15"
