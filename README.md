@@ -25,10 +25,13 @@ MCCopilot/
 │   ├── Managers/              # 技术栈管理器
 │   ├── ViewControllers/       # 视图控制器
 │   └── Native/                # 原生业务代码
-├── ReactNative/               # React Native 0.85 源码
-│   ├── src/                   # 组件、chunkResolver
-│   ├── packages/react-native-mccopilot  # NitroModules 原生模块
-│   └── rspack.config.mjs      # Re.Pack 打包配置
+├── ReactNative/               # React Native 0.85（npm workspace monorepo）
+│   ├── apps/mobile/           # App Shell（入口 + rspack 配置 + chunkResolver）
+│   ├── packages/
+│   │   ├── app-example/       # ExampleRNApp 模块
+│   │   ├── app-second/        # SecondRNApp 模块
+│   │   └── react-native-mccopilot  # NitroModules 原生模块（Rust FFI）
+│   └── package.json           # workspace 根（scripts 转发到 apps/mobile）
 ├── Flutter/lib/               # Dart 多入口点
 ├── Web/src/                   # Vite/React Web 应用
 ├── Rust/crates/               # Rust 工作空间
@@ -143,6 +146,7 @@ cd ReactNative && npm start
 
 ### React Native 0.85
 
+- **Monorepo 架构**：npm workspace 组织，`apps/mobile` 为 App Shell，`packages/` 下为各功能模块（`app-example`、`app-second`、`react-native-mccopilot`）
 - **Fabric 新架构**：`RCTReactNativeFactory` + `RCTDefaultReactNativeFactoryDelegate`
 - **多 Surface**：多个 RN 模块通过 `AppRegistry` 注册，各自在独立的 Fabric Surface 中渲染
 - **Re.Pack 打包**：基于 Rspack（非 Metro），支持异步 chunk 拆分
@@ -171,7 +175,7 @@ cd ReactNative && npm start
 
 ### React Native ↔ Rust 桥接
 
-`ReactNative/packages/react-native-mccopilot` 是 NitroModules 原生模块，通过 JSI 访问 Rust 加密函数：
+`ReactNative/packages/react-native-mccopilot` 是 NitroModules 原生模块，通过 JSI 访问 Rust 加密函数。桥接链路：
 
 ```
 TypeScript → NitroModules (.nitro.ts) → 生成 Swift → Rust FFI
@@ -236,9 +240,9 @@ rm -rf Pods Podfile.lock && pod install
 
 ## 常见问题
 
-### Metro 无法连接
+### Re.Pack 开发服务器无法连接
 
-确保 Re.Pack 开发服务器已启动：
+确保开发服务器已启动：
 ```bash
 cd ReactNative && npm start
 ```

@@ -93,7 +93,7 @@ rm -rf Pods Podfile.lock && pod install
 
 ### Key Patterns
 
-- **React Native**: Uses `RCTReactNativeFactory` + `RCTDefaultReactNativeFactoryDelegate` (RN 0.85 pattern). Multiple RN modules registered via `AppRegistry`, each rendered in its own Fabric surface. Bundling via Callstack Re.Pack (Rspack-based, not Metro). Supports remote chunk loading: `React.lazy` + Re.Pack splits async chunks, served by `mccopilot-server` (Rust/Axum + MinIO). Client-side resolver in `ReactNative/src/chunkResolver.ts` handles dev server (dev mode) and API download with SHA-256 verification + local cache (release mode).
+- **React Native**: Uses `RCTReactNativeFactory` + `RCTDefaultReactNativeFactoryDelegate` (RN 0.85 pattern). Multiple RN modules registered via `AppRegistry`, each rendered in its own Fabric surface. Bundling via Callstack Re.Pack (Rspack-based, not Metro). Supports remote chunk loading: `React.lazy` + Re.Pack splits async chunks, served by `mccopilot-server` (Rust/Axum + MinIO). Client-side resolver in `ReactNative/apps/mobile/src/chunkResolver.ts` handles dev server (dev mode) and API download with SHA-256 verification + local cache (release mode). React Native is organized as an npm workspace monorepo with `apps/mobile` (app shell) and `packages/` for feature modules.
 - **Flutter**: FlutterEngineGroup creates multiple engines sharing one Dart VM. Each Flutter tab uses a different entry point (`main()`, `shoppingMain()`, `profileMain()`) in `Flutter/lib/main.dart`, annotated with `@pragma('vm:entry-point')`.
 - **Web**: Vite-built React app. Build outputs to `Web/dist/`, then `copy-to-ios` copies assets into the Xcode project. Loaded via custom `local://` URL scheme.
 - **Rust**: Workspace at `Rust/` with four crates. `mccopilot-lib` is the core library (crypto, network, plugins). `mccopilot` provides FFI bindings via BoltFFI for Swift/Android. `mccopilot-dart` provides Dart bindings. `mccopilot-plugin` is a WASM plugin runtime.
@@ -105,7 +105,7 @@ rm -rf Pods Podfile.lock && pod install
 ## Directory Layout (key paths)
 
 - `MCCopilot/` — iOS native app (Swift): AppDelegate, Managers, ViewControllers, Config
-- `ReactNative/` — RN source: `src/` for components, `packages/react-native-mccopilot` for native module
+- `ReactNative/` — npm workspace monorepo: `apps/mobile` (app shell + rspack config), `packages/app-example` (ExampleRNApp module), `packages/app-second` (SecondRNApp module), `packages/react-native-mccopilot` (native module)
 - `Flutter/lib/` — Dart code with multi-entry-point main.dart
 - `Web/src/` — React + Vite web app
 - `Rust/crates/` — `mccopilot-lib`, `mccopilot` (FFI), `mccopilot-dart`, `mccopilot-plugin`, `mccopilot-server`
