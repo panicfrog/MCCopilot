@@ -1,21 +1,23 @@
 {
-  "name": "MCCopilot",
+  "name": "@mccopilot/react-native-monorepo",
   "version": "1.0.0",
-  "description": "Hybrid app with React Native, Flutter, and Web",
-  "main": "index.tsx",
+  "private": true,
+  "description": "MCCopilot React Native workspace root",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "react-native webpack-start",
-    "ios": "react-native run-ios",
-    "bundle-ios": "react-native webpack-bundle --entry-file index.tsx --platform ios --dev false --bundle-output ../MCCopilot/main.jsbundle --assets-dest ../MCCopilot",
-    "bundle-ios-dev": "react-native webpack-bundle --entry-file index.tsx --platform ios --dev true --bundle-output ../MCCopilot/main.jsbundle --assets-dest ../MCCopilot",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx"
+    "start": "npm run start -w @mccopilot/mobile",
+    "bundle-ios": "npm run bundle-ios -w @mccopilot/mobile",
+    "bundle-ios-dev": "npm run bundle-ios-dev -w @mccopilot/mobile",
+    "type-check": "npm run type-check -ws",
+    "lint": "npm run lint -ws"
   },
   "dependencies": {
     "react": "19.2.3",
     "react-native": "0.85.3",
-    "react-native-nitro-modules": "^0.35.7",
-    "react-native-mccopilot": "file:./packages/react-native-mccopilot"
+    "react-native-nitro-modules": "^0.35.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

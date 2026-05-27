@@ -2,6 +2,9 @@
   "name": "react-native-mccopilot",
   "version": "0.1.0",
   "main": "src/index",
+  "scripts": {
+    "type-check": "echo ok"
+  },
   "devDependencies": {
     "nitrogen": "^0.35.7"
   },

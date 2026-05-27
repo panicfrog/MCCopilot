@@ -12,7 +12,7 @@ const SecondRNApp: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>远程模块 v4</Text>
+          <Text style={styles.title}>远程模块 v7 (monorepo)</Text>
           <Text style={styles.subtitle}>通过 API 动态加载</Text>
         </View>
 
