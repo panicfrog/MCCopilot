@@ -147,9 +147,9 @@ const ExampleRNApp: React.FC = () => {
 
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>技术栈信息</Text>
-          <Text style={styles.infoText}>• React Native 0.77</Text>
-          <Text style={styles.infoText}>• TypeScript 5.6</Text>
-          <Text style={styles.infoText}>• NitroModules 0.34.1 (C++ JSI)</Text>
+          <Text style={styles.infoText}>• React Native 0.85</Text>
+          <Text style={styles.infoText}>• TypeScript 5.8</Text>
+          <Text style={styles.infoText}>• NitroModules 0.35.7 (C++ JSI)</Text>
           <Text style={styles.infoText}>• Rust 加密 (MccopilotBridge)</Text>
         </View>
       </ScrollView>

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "src/index",
   "devDependencies": {
-    "nitrogen": "^0.34.1"
+    "nitrogen": "^0.35.7"
   },
   "peerDependencies": {
     "react": "*",
