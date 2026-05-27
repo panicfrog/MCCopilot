@@ -12,12 +12,15 @@
     "bundle-ios": "npm run bundle-ios -w @mccopilot/mobile",
     "bundle-ios-dev": "npm run bundle-ios-dev -w @mccopilot/mobile",
     "type-check": "npm run type-check -ws",
-    "lint": "npm run lint -ws"
+    "lint": "npm run lint -ws",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "react": "19.2.3",
     "react-native": "0.85.3",
-    "react-native-nitro-modules": "^0.35.7"
+    "react-native-nitro-modules": "^0.35.7",
+    "react-native-safe-area-context": "^5.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

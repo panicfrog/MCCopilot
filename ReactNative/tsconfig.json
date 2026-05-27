@@ -17,16 +17,10 @@
     "types": ["react-native"]
   },
   "references": [
-    { "path": "./apps/mobile" },
-    { "path": "./packages/app-example" },
-    { "path": "./packages/app-second" }
+    {"path": "./apps/mobile"},
+    {"path": "./packages/app-example"},
+    {"path": "./packages/app-second"}
   ],
   "include": [],
-  "exclude": [
-    "node_modules",
-    "MCCopilot",
-    "Flutter",
-    "ios",
-    "android"
-  ]
+  "exclude": ["node_modules", "MCCopilot", "Flutter", "ios", "android"]
 }

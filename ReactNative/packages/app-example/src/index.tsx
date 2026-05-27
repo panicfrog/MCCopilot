@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {MccopilotRNModule} from 'react-native-mccopilot';
 
 const ExampleRNApp: React.FC = () => {
@@ -52,7 +52,7 @@ const ExampleRNApp: React.FC = () => {
 
       setCryptoResult(
         `AES-GCM Nonce (${new Uint8Array(nonceBuf).length}B): ${nonceHex}\n` +
-        `AES IV (${new Uint8Array(ivBuf).length}B): ${ivHex}`
+          `AES IV (${new Uint8Array(ivBuf).length}B): ${ivHex}`,
       );
     } catch (e: any) {
       setCryptoResult(`错误: ${e.message}`);
@@ -64,12 +64,15 @@ const ExampleRNApp: React.FC = () => {
       const password = 'MySecretPassword123';
       const hash = MccopilotRNModule.cryptoArgon2Hash(password, undefined);
       const verified = MccopilotRNModule.cryptoArgon2Verify(password, hash);
-      const wrongVerify = MccopilotRNModule.cryptoArgon2Verify('WrongPassword', hash);
+      const wrongVerify = MccopilotRNModule.cryptoArgon2Verify(
+        'WrongPassword',
+        hash,
+      );
 
       setCryptoResult(
         `Argon2 Hash:\n${hash}\n\n` +
-        `正确密码验证: ${verified ? '通过' : '失败'}\n` +
-        `错误密码验证: ${wrongVerify ? '通过' : '失败'}`
+          `正确密码验证: ${verified ? '通过' : '失败'}\n` +
+          `错误密码验证: ${wrongVerify ? '通过' : '失败'}`,
       );
     } catch (e: any) {
       setCryptoResult(`错误: ${e.message}`);
@@ -83,77 +86,81 @@ const ExampleRNApp: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>React Native 页面</Text>
-          <Text style={styles.subtitle}>使用 TypeScript 编写</Text>
-        </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>React Native 页面</Text>
+            <Text style={styles.subtitle}>使用 TypeScript 编写</Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>计数器示例</Text>
-          <Text style={styles.counterText}>{count}</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.decrementButton]}
-              onPress={() => setCount(count - 1)}>
-              <Text style={styles.buttonText}>-</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.incrementButton]}
-              onPress={() => setCount(count + 1)}>
-              <Text style={styles.buttonText}>+</Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={[styles.button, styles.resetButton]}
-            onPress={() => setCount(0)}>
-            <Text style={styles.buttonText}>重置</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Rust 加密测试 (NitroModule)</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.cryptoButton]}
-              onPress={testGetVersion}>
-              <Text style={styles.buttonText}>版本号</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.cryptoButton]}
-              onPress={testSha256}>
-              <Text style={styles.buttonText}>SHA-256</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.cryptoButton]}
-              onPress={testAesGcm}>
-              <Text style={styles.buttonText}>AES-GCM</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.cryptoButton]}
-              onPress={testArgon2}>
-              <Text style={styles.buttonText}>Argon2</Text>
-            </TouchableOpacity>
-          </View>
-          {cryptoResult ? (
-            <View style={styles.resultBox}>
-              <Text style={styles.resultText} selectable>{cryptoResult}</Text>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>计数器示例</Text>
+            <Text style={styles.counterText}>{count}</Text>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.decrementButton]}
+                onPress={() => setCount(count - 1)}>
+                <Text style={styles.buttonText}>-</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.incrementButton]}
+                onPress={() => setCount(count + 1)}>
+                <Text style={styles.buttonText}>+</Text>
+              </TouchableOpacity>
             </View>
-          ) : null}
-        </View>
+            <TouchableOpacity
+              style={[styles.button, styles.resetButton]}
+              onPress={() => setCount(0)}>
+              <Text style={styles.buttonText}>重置</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>技术栈信息</Text>
-          <Text style={styles.infoText}>• React Native 0.85</Text>
-          <Text style={styles.infoText}>• TypeScript 5.8</Text>
-          <Text style={styles.infoText}>• NitroModules 0.35.7 (C++ JSI)</Text>
-          <Text style={styles.infoText}>• Rust 加密 (MccopilotBridge)</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Rust 加密测试 (NitroModule)</Text>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.cryptoButton]}
+                onPress={testGetVersion}>
+                <Text style={styles.buttonText}>版本号</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.cryptoButton]}
+                onPress={testSha256}>
+                <Text style={styles.buttonText}>SHA-256</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.cryptoButton]}
+                onPress={testAesGcm}>
+                <Text style={styles.buttonText}>AES-GCM</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.cryptoButton]}
+                onPress={testArgon2}>
+                <Text style={styles.buttonText}>Argon2</Text>
+              </TouchableOpacity>
+            </View>
+            {cryptoResult ? (
+              <View style={styles.resultBox}>
+                <Text style={styles.resultText} selectable>
+                  {cryptoResult}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>技术栈信息</Text>
+            <Text style={styles.infoText}>• React Native 0.85</Text>
+            <Text style={styles.infoText}>• TypeScript 5.8</Text>
+            <Text style={styles.infoText}>• NitroModules 0.35.7 (C++ JSI)</Text>
+            <Text style={styles.infoText}>• Rust 加密 (MccopilotBridge)</Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -278,4 +285,3 @@ const styles = StyleSheet.create({
 });
 
 export default ExampleRNApp;
-

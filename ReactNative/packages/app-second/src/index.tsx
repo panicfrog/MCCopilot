@@ -1,39 +1,36 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 const SecondRNApp: React.FC = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>远程模块 v7 (monorepo)</Text>
-          <Text style={styles.subtitle}>通过 API 动态加载</Text>
-        </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>远程模块 v7 (monorepo)</Text>
+            <Text style={styles.subtitle}>通过 API 动态加载</Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.emoji}>📦</Text>
-          <Text style={styles.description}>
-            这个页面是从远程服务器动态下载的！chunk 通过 mccopilot-server 分发，
-            本地缓存后离线也可用。
-          </Text>
-        </View>
+          <View style={styles.card}>
+            <Text style={styles.emoji}>📦</Text>
+            <Text style={styles.description}>
+              这个页面是从远程服务器动态下载的！chunk 通过 mccopilot-server
+              分发， 本地缓存后离线也可用。
+            </Text>
+          </View>
 
-        <View style={styles.featureList}>
-          <Text style={styles.featureTitle}>动态加载流程：</Text>
-          <FeatureItem text="检查本地缓存" />
-          <FeatureItem text="获取远程 manifest" />
-          <FeatureItem text="下载最新 chunk" />
-          <FeatureItem text="缓存到本地文件" />
-          <FeatureItem text="hash 校验自动更新" />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.featureList}>
+            <Text style={styles.featureTitle}>动态加载流程：</Text>
+            <FeatureItem text="检查本地缓存" />
+            <FeatureItem text="获取远程 manifest" />
+            <FeatureItem text="下载最新 chunk" />
+            <FeatureItem text="缓存到本地文件" />
+            <FeatureItem text="hash 校验自动更新" />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -128,4 +125,3 @@ const styles = StyleSheet.create({
 });
 
 export default SecondRNApp;
-

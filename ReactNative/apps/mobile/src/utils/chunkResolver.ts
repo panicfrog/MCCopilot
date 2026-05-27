@@ -25,11 +25,16 @@ type Manifest = {
 
 let cachedManifest: Manifest | null = null;
 
-async function nativeFetch(url: string): Promise<{status: number; body: string}> {
+async function nativeFetch(
+  url: string,
+): Promise<{status: number; body: string}> {
   if (!ChunkCacheModule?.fetchURL) {
     throw new Error('ChunkCacheModule.fetchURL not available');
   }
-  return ChunkCacheModule.fetchURL(url) as Promise<{status: number; body: string}>;
+  return ChunkCacheModule.fetchURL(url) as Promise<{
+    status: number;
+    body: string;
+  }>;
 }
 
 async function getManifest(): Promise<Manifest> {
@@ -91,7 +96,10 @@ export function setupChunkResolver() {
 
     // 4. Verify hash with Rust SHA-256
     const dataBuffer = new TextEncoder().encode(chunkData);
-    const actualHash = MccopilotRNModule.cryptoHash('sha256', dataBuffer.buffer as ArrayBuffer);
+    const actualHash = MccopilotRNModule.cryptoHash(
+      'sha256',
+      dataBuffer.buffer as ArrayBuffer,
+    );
     if (actualHash !== chunkMeta.hash) {
       throw new Error(
         `Chunk "${scriptId}" hash mismatch: expected ${chunkMeta.hash}, got ${actualHash}`,
