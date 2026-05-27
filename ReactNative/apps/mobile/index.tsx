@@ -5,7 +5,7 @@ import {
   Animated,
   StyleSheet,
 } from 'react-native';
-import ExampleRNApp from './src/ExampleRNApp';
+import ExampleRNApp from '@mccopilot/app-example';
 import {setupChunkResolver} from './src/chunkResolver';
 
 // Polyfill: Hermes production mode doesn't include setImmediate
@@ -19,7 +19,7 @@ if (typeof globalThis.setImmediate === 'undefined') {
 // Lazy load SecondRNApp as a remote chunk
 const SecondRNApp = React.lazy(
   () =>
-    import(/* webpackChunkName: "SecondRNApp" */ './src/SecondRNApp'),
+    import(/* webpackChunkName: "SecondRNApp" */ '@mccopilot/app-second'),
 );
 
 // Initialize chunk resolver before registering components

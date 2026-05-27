@@ -16,10 +16,12 @@
     "isolatedModules": true,
     "types": ["react-native"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
+  "references": [
+    { "path": "./apps/mobile" },
+    { "path": "./packages/app-example" },
+    { "path": "./packages/app-second" }
   ],
+  "include": [],
   "exclude": [
     "node_modules",
     "MCCopilot",
@@ -28,4 +30,3 @@
     "android"
   ]
 }
-

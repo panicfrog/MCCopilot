@@ -4,19 +4,14 @@ import * as Repack from '@callstack/repack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-/**
- * Rspack configuration enhanced with Re.Pack defaults for React Native.
- *
- * Learn about Rspack configuration: https://rspack.dev/config/
- * Learn about Re.Pack configuration: https://re-pack.dev/docs/guides/configuration
- */
+const reactNativeRoot = path.resolve(__dirname, '../..');
 
 export default Repack.defineRspackConfig({
   context: __dirname,
   entry: './index.tsx',
   resolve: {
     ...Repack.getResolveOptions(),
+    modules: [path.resolve(reactNativeRoot, 'node_modules'), 'node_modules'],
   },
   module: {
     rules: [
@@ -46,7 +41,7 @@ export default Repack.defineRspackConfig({
       extraChunks: [
         {
           type: 'remote',
-          outputPath: path.resolve(__dirname, 'build/outputs/ios/remotes'),
+          outputPath: path.resolve(reactNativeRoot, 'build/outputs/ios/remotes'),
         },
       ],
     }),
