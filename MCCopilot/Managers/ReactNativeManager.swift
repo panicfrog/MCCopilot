@@ -8,63 +8,62 @@
 import Foundation
 import React
 import React_RCTAppDelegate
+import ReactAppDependencyProvider
 
-/// React Native管理器 - 使用 RCTRootViewFactory 支持 New Architecture (TurboModules)
+class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+    override func sourceURL(for bridge: RCTBridge!) -> URL! {
+        return bundleURL()
+    }
+
+    override func bundleURL() -> URL! {
+        #if DEBUG
+            return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+        #else
+            return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+        #endif
+    }
+}
+
 class ReactNativeManager {
 
     static let shared = ReactNativeManager()
 
-    private var rootViewFactory: RCTRootViewFactory?
+    private var reactNativeFactory: RCTReactNativeFactory?
+    private var delegate: ReactNativeDelegate?
 
     private init() {}
 
-    /// 初始化React Native
     func initializeBridge() {
-        if rootViewFactory != nil {
+        if reactNativeFactory != nil {
             print("⚠️ React Native已经初始化")
             return
         }
 
         print("🚀 正在初始化React Native...")
 
-        #if DEBUG
-            guard let bundleURL = RCTBundleURLProvider.sharedSettings().jsBundleURL(
-                forBundleRoot: "index"
-            ) else {
-                print("❌ 无法获取React Native bundle URL")
-                return
-            }
-        #else
-            guard
-                let bundleURL = Bundle.main.url(forResource: "main", withExtension: "jsbundle")
-            else {
-                print("❌ 找不到React Native bundle文件")
-                return
-            }
-        #endif
+        delegate = ReactNativeDelegate()
+        delegate?.dependencyProvider = RCTAppDependencyProvider()
 
-        let configuration = RCTRootViewFactoryConfiguration(
-            bundleURL: bundleURL,
-            newArchEnabled: true
-        )
+        reactNativeFactory = RCTReactNativeFactory(delegate: delegate!)
 
-        rootViewFactory = RCTRootViewFactory(configuration: configuration)
+        // RN 0.85 需要调用 startReactNative 来初始化 JS 运行时
+        // 传入 nil window，因为我们不需要它接管整个窗口
+        reactNativeFactory?.startReactNative(withModuleName: "ExampleRNApp", in: nil)
 
         print("✅ React Native初始化成功")
     }
 
-    /// 创建React Native视图
     func createReactNativeView(moduleName: String, initialProps: [String: Any]? = nil)
         -> UIView?
     {
-        guard let factory = rootViewFactory else {
+        guard let factory = reactNativeFactory else {
             print("❌ React Native未初始化，无法创建视图")
             return nil
         }
 
         print("📱 创建React Native视图: \(moduleName)")
 
-        let rootView = factory.view(
+        let rootView = factory.rootViewFactory.view(
             withModuleName: moduleName,
             initialProperties: initialProps
         )
@@ -74,12 +73,10 @@ class ReactNativeManager {
         return rootView
     }
 
-    /// 获取Bridge实例（用于高级用途）
     func getBridge() -> RCTBridge? {
-        return rootViewFactory?.bridge
+        return reactNativeFactory?.rootViewFactory.bridge
     }
 
-    /// 重新加载React Native（用于开发）
     func reload() {
         #if DEBUG
             RCTTriggerReloadCommandListeners("Manual reload")
@@ -89,10 +86,10 @@ class ReactNativeManager {
         #endif
     }
 
-    /// 清理资源
     func cleanup() {
-        rootViewFactory?.bridge?.invalidate()
-        rootViewFactory = nil
+        reactNativeFactory?.rootViewFactory.bridge?.invalidate()
+        reactNativeFactory = nil
+        delegate = nil
         print("🗑️ React Native已清理")
     }
 }
